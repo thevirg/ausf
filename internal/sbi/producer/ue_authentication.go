@@ -238,7 +238,18 @@ func UeAuthPostRequestProcedure(updateAuthenticationInfo models.AuthenticationIn
 
 		ausfUeContext.Rand = authInfoResult.AuthenticationVector.Rand
 
-		_, K_aut, _, _, EMSK := eapAkaPrimePrf(ikPrime, ckPrime, identity)
+		_, K_aut, _, _, EMSK, eap_err := eapAkaPrimePrf(ikPrime, ckPrime, identity)
+		if eap_err != nil {
+			var problemDetails models.ProblemDetails
+			problemDetails.Title = "EAP Derivation Problem"
+			problemDetails.Cause = "EAP_DERIVATION_PROBLEM"
+			problemDetails.Detail = eap_err.Error()
+			problemDetails.Status = http.StatusInternalServerError
+
+			logger.EapAuthComfirmLog.Errorf("eapAkaPrimePrf failed: %+v", eap_err)
+			return nil, "", &problemDetails
+		}
+
 		logger.EapAuthComfirmLog.Tracef("K_aut: %x", K_aut)
 		ausfUeContext.K_aut = hex.EncodeToString(K_aut)
 		Kausf := EMSK[0:32]

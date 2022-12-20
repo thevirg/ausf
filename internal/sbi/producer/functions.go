@@ -135,13 +135,15 @@ func EapEncodeAttribute(attributeType string, data string) (string, error) {
 }
 
 // func eapAkaPrimePrf(ikPrime string, ckPrime string, identity string) (K_encr string, K_aut string, K_re string,
-//    MSK string, EMSK string) {
-func eapAkaPrimePrf(ikPrime string, ckPrime string, identity string) ([]byte, []byte, []byte, []byte, []byte) {
+//
+//	MSK string, EMSK string) {
+func eapAkaPrimePrf(ikPrime string, ckPrime string, identity string) ([]byte, []byte, []byte, []byte, []byte, error) {
 	keyAp := ikPrime + ckPrime
 
 	var key []byte
 	if keyTmp, err := hex.DecodeString(keyAp); err != nil {
 		logger.EapAuthComfirmLog.Warnf("Decode key AP failed: %+v", err)
+		return nil, nil, nil, nil, nil, err
 	} else {
 		key = keyTmp
 	}
@@ -162,6 +164,7 @@ func eapAkaPrimePrf(ikPrime string, ckPrime string, identity string) ([]byte, []
 		// Write Data to it
 		if _, err := h.Write(s); err != nil {
 			logger.EapAuthComfirmLog.Errorln(err.Error())
+			return nil, nil, nil, nil, nil, err
 		}
 
 		// Get result
@@ -175,7 +178,7 @@ func eapAkaPrimePrf(ikPrime string, ckPrime string, identity string) ([]byte, []
 	K_re := MK[48:80]   // 384..639
 	MSK := MK[80:144]   // 640..1151
 	EMSK := MK[144:208] // 1152..1663
-	return K_encr, K_aut, K_re, MSK, EMSK
+	return K_encr, K_aut, K_re, MSK, EMSK, nil
 }
 
 func decodeEapAkaPrime(eapPkt []byte) (*ausf_context.EapAkaPrimePkt, error) {
