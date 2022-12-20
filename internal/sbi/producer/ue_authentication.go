@@ -247,10 +247,9 @@ func UeAuthPostRequestProcedure(updateAuthenticationInfo models.AuthenticationIn
 		Kseaf, err := ueauth.GetKDFValue(Kausf, ueauth.FC_FOR_KSEAF_DERIVATION, P0, ueauth.KDFLen(P0))
 		if err != nil {
 
-			// Return ProblemDetails for EAP Kseaf error
 			var problemDetails models.ProblemDetails
-			problemDetails.Title = "EAP Kseaf Derivation Problem"
-			problemDetails.Cause = "EAP_KSEAF_DERIVATION_PROBLEM"
+			problemDetails.Title = "EAP Derivation Problem"
+			problemDetails.Cause = "EAP_DERIVATION_PROBLEM"
 			problemDetails.Detail = err.Error()
 			problemDetails.Status = http.StatusInternalServerError
 
@@ -277,26 +276,61 @@ func UeAuthPostRequestProcedure(updateAuthenticationInfo models.AuthenticationIn
 		eapAKAHdr = string(eapAKAHdrBytes)
 		if atRandTmp, err := EapEncodeAttribute("AT_RAND", RAND); err != nil {
 			logger.EapAuthComfirmLog.Errorf("EAP encode RAND failed: %+v", err)
+
+			var problemDetails models.ProblemDetails
+			problemDetails.Title = "EAP Encode Problem"
+			problemDetails.Cause = "EAP_ENCODE_PROBLEM"
+			problemDetails.Detail = err.Error()
+			problemDetails.Status = http.StatusInternalServerError
+			return nil, "", &problemDetails
 		} else {
 			atRand = atRandTmp
 		}
 		if atAutnTmp, err := EapEncodeAttribute("AT_AUTN", AUTN); err != nil {
 			logger.EapAuthComfirmLog.Errorf("EAP encode AUTN failed: %+v", err)
+
+			var problemDetails models.ProblemDetails
+			problemDetails.Title = "EAP Encode Problem"
+			problemDetails.Cause = "EAP_ENCODE_PROBLEM"
+			problemDetails.Detail = err.Error()
+			problemDetails.Status = http.StatusInternalServerError
+			return nil, "", &problemDetails
 		} else {
 			atAutn = atAutnTmp
 		}
 		if atKdfTmp, err := EapEncodeAttribute("AT_KDF", snName); err != nil {
 			logger.EapAuthComfirmLog.Errorf("EAP encode KDF failed: %+v", err)
+
+			var problemDetails models.ProblemDetails
+			problemDetails.Title = "EAP Encode Problem"
+			problemDetails.Cause = "EAP_ENCODE_PROBLEM"
+			problemDetails.Detail = err.Error()
+			problemDetails.Status = http.StatusInternalServerError
+			return nil, "", &problemDetails
 		} else {
 			atKdf = atKdfTmp
 		}
 		if atKdfInputTmp, err := EapEncodeAttribute("AT_KDF_INPUT", snName); err != nil {
 			logger.EapAuthComfirmLog.Errorf("EAP encode KDF failed: %+v", err)
+
+			var problemDetails models.ProblemDetails
+			problemDetails.Title = "EAP Encode Problem"
+			problemDetails.Cause = "EAP_ENCODE_PROBLEM"
+			problemDetails.Detail = err.Error()
+			problemDetails.Status = http.StatusInternalServerError
+			return nil, "", &problemDetails
 		} else {
 			atKdfInput = atKdfInputTmp
 		}
 		if atMACTmp, err := EapEncodeAttribute("AT_MAC", ""); err != nil {
 			logger.EapAuthComfirmLog.Errorf("EAP encode MAC failed: %+v", err)
+
+			var problemDetails models.ProblemDetails
+			problemDetails.Title = "EAP Encode Problem"
+			problemDetails.Cause = "EAP_ENCODE_PROBLEM"
+			problemDetails.Detail = err.Error()
+			problemDetails.Status = http.StatusInternalServerError
+			return nil, "", &problemDetails
 		} else {
 			atMAC = atMACTmp
 		}
